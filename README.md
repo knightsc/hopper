@@ -18,5 +18,5 @@ Hopper python scripts that need to be installed in `~/Library/Application Suppor
 
 ## Related Links
 
-[https://github.com/phracker/HopperScripts](https://github.com/phracker/HopperScripts)
+[https://github.com/phracker/HopperScripts](https://github.com/phracker/HopperScripts)  
 [https://github.com/agatti/hopper-plugins](https://github.com/agatti/hopper-plugins)
