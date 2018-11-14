@@ -26,11 +26,11 @@
 }
 
 - (NSString *)pluginDescription {
-    return @"GBA ROM Loader";
+    return @"Game Boy Advance ROM Loader";
 }
 
 - (NSString *)pluginName {
-    return @"GBA ROM";
+    return @"Game Boy Advance ROM";
 }
 
 - (NSString *)pluginVersion {
