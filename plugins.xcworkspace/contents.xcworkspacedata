@@ -1,7 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Workspace
    version = "1.0">
-   <FileRef
-      location = "group:loaders/GBALoader/GBALoader.xcodeproj">
-   </FileRef>
+   <Group
+      location = "container:"
+      name = "CPUs">
+      <FileRef
+         location = "group:cpus/GBCPU/GBCPU.xcodeproj">
+      </FileRef>
+   </Group>
+   <Group
+      location = "container:"
+      name = "Loaders">
+      <FileRef
+         location = "group:loaders/GBLoader/GBLoader.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:loaders/GBALoader/GBALoader.xcodeproj">
+      </FileRef>
+   </Group>
 </Workspace>
