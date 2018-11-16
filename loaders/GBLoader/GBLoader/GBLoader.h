@@ -22,17 +22,16 @@ typedef struct {
 
 #define GB_HEADER_LEN 0x150
 #define GB_MAGIC_NUM  0x00c35001
+#define GB_BANK_LEN   0x4000
 
 const NamedAddressRange MemoryMap[] = {
-    {"ROM0",  0x0000, 0x4000},
-    {"VRAM",  0x8000, 0x2000},
-    {"SRAM",  0xa000, 0x2000},
-    {"WRAM0", 0xc000, 0x1000},
-    {"WRAMX", 0xd000, 0x1000},
-    {"WRAMM", 0xe000, 0x1e00},
-    {"OAM",   0xfe00, 0x00a0},
-    {"IO",    0xff00, 0x0080},
-    {"HRAM",  0xff80, 0x0080},
+    {"VRAM",   0x8000, 0x2000},
+    {"SRAM",   0xa000, 0x2000},
+    {"WRAM0",  0xc000, 0x1000},
+    {"WRAM1",  0xd000, 0x1000},
+    {"OAM",    0xfe00, 0x00a0},
+    {"IO",     0xff00, 0x0080},
+    {"HRAM",   0xff80, 0x0080},
 };
 
 static const NamedAddress IOMap[] = {

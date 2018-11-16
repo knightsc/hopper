@@ -101,32 +101,60 @@
         [file setName:@(na.name) forVirtualAddress:na.addr reason:NCReason_Import];
     }
     
-    callback(@"Labelling additional names/structs", 0.4);
-    [file setName:@"RST_00" forVirtualAddress:0x0000 reason:NCReason_Import];
-    [file setName:@"RST_08" forVirtualAddress:0x0008 reason:NCReason_Import];
-    [file setName:@"RST_10" forVirtualAddress:0x0010 reason:NCReason_Import];
-    [file setName:@"RST_18" forVirtualAddress:0x0018 reason:NCReason_Import];
-    [file setName:@"RST_20" forVirtualAddress:0x0020 reason:NCReason_Import];
-    [file setName:@"RST_28" forVirtualAddress:0x0028 reason:NCReason_Import];
-    [file setName:@"RST_30" forVirtualAddress:0x0030 reason:NCReason_Import];
-    [file setName:@"RST_38" forVirtualAddress:0x0038 reason:NCReason_Import];
+    callback(@"Loading cartridge ROM", 0.4);
+    unsigned long romCount = [data length] / GB_BANK_LEN;
+    for (int i = 0; i < romCount; i++) {
+        NSString *name = [NSString stringWithFormat:@"ROM%03x", i];
+        
+        // The Game Boy has two memory areas for ROM
+        //   0x0000 - 0x3fff 16KB ROM Bank 00     (in cartridge, fixed at bank 00)
+        //   0x4000 - 0x7fff 16KB ROM Bank 01..NN (in cartridge, switchable bank number)
+        //
+        // Hopper does not currently support banked memory so we work around this by
+        // loading Bank 01..NN at higher memory areas. For example:
+        //   0x04000 - 0x07fff 16KB ROM Bank 01
+        //   0x14000 - 0x07fff 16KB ROM Bank 02
+        //   0x24000 - 0x07fff 16KB ROM Bank 03
+        //   ...
+        //   0x(NN-1)4000 - 0x07fff 16KB ROM Bank NN
+        //
+        // This will allow relative addresses to work okay and we could potentially
+        // read bank switching commands to keep track of the current bank and modify
+        // absolute addresses if we wanted.
+        Address addr = ((i-1) * 0x10000) + GB_BANK_LEN;
+        if (i == 0) {
+            addr = 0x0000;
+        }
+        
+        const void *bytes = (const void *)[data bytes];
+        NSData *bankData = [NSData dataWithBytes:&bytes[i * GB_BANK_LEN] length:GB_BANK_LEN];
+        
+        NSObject<HPSegment> *segment = [file addSegmentAt:addr size:GB_BANK_LEN];
+        segment.segmentName = name;
+        segment.mappedData = bankData;
+        segment.fileOffset = i * GB_BANK_LEN;
+        segment.fileLength = segment.length;
+        
+        NSObject<HPSection> *section = [segment addSectionAt:addr size:GB_BANK_LEN];
+        section.sectionName = name;
+        section.fileOffset = i * GB_BANK_LEN;
+        section.fileLength = segment.length;
+    }
+    
+    callback(@"Labelling additional names/structs", 0.6);
+    [file setName:@"RST00" forVirtualAddress:0x0000 reason:NCReason_Import];
+    [file setName:@"RST08" forVirtualAddress:0x0008 reason:NCReason_Import];
+    [file setName:@"RST10" forVirtualAddress:0x0010 reason:NCReason_Import];
+    [file setName:@"RST18" forVirtualAddress:0x0018 reason:NCReason_Import];
+    [file setName:@"RST20" forVirtualAddress:0x0020 reason:NCReason_Import];
+    [file setName:@"RST28" forVirtualAddress:0x0028 reason:NCReason_Import];
+    [file setName:@"RST30" forVirtualAddress:0x0030 reason:NCReason_Import];
+    [file setName:@"RST38" forVirtualAddress:0x0038 reason:NCReason_Import];
     [file setName:@"VBlankInterrupt" forVirtualAddress:0x0040 reason:NCReason_Import];
     [file setName:@"LCDCInterrupt" forVirtualAddress:0x0048 reason:NCReason_Import];
     [file setName:@"TimerOverflowInterrupt" forVirtualAddress:0x0050 reason:NCReason_Import];
     [file setName:@"SerialTransferCompleteInterrupt" forVirtualAddress:0x0058 reason:NCReason_Import];
-    [file setName:@"JoypadTransitionInterrupt" forVirtualAddress:0x0060 reason:NCReason_Import];    
-    
-    callback(@"Loading cartridge ROM", 0.6);
-    NSObject<HPSegment> *segment = [file segmentNamed:@"ROM0"];
-    NSObject<HPSection> *section = [file sectionNamed:@"ROM0"];
-    segment.mappedData = data;
-    segment.fileOffset = 0;
-    segment.fileLength = segment.length;
-    
-    section.fileOffset = 0;
-    section.fileLength = segment.length;
-    
-    // TODO: Load additional ROM banks. Not sure if Hopper supports this
+    [file setName:@"JoypadTransitionInterrupt" forVirtualAddress:0x0060 reason:NCReason_Import];
     
     NSObject<HPTypeDesc> *type = [file structureType];
     
