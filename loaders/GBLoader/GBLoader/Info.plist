@@ -21,6 +21,6 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2018 Scott Knight. All rights reserved.</string>
 	<key>NSPrincipalClass</key>
-	<string>GBALoader</string>
+	<string>GBLoader</string>
 </dict>
 </plist>
