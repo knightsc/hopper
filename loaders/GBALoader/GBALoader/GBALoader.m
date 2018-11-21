@@ -57,7 +57,8 @@
     return NO;
 }
 
-- (NSArray<NSObject<HPDetectedFileType> *> *)detectedTypesForData:(NSData *)data {
+- (NSArray<NSObject<HPDetectedFileType> *> *)detectedTypesForData:(NSData *)data
+                                                      ofFileNamed:(NSString *)filename {
     if ([data length] < 4) {
         return @[];
     }
@@ -176,7 +177,8 @@
 
 - (NSData *)extractFromData:(NSData *)data
       usingDetectedFileType:(NSObject<HPDetectedFileType> *)fileType
-         returnAdjustOffset:(uint64_t *)adjustOffset {
+         returnAdjustOffset:(uint64_t *)adjustOffset
+       returnAdjustFilename:(NSString *__autoreleasing *)newFilename {
     return nil;
 }
 

@@ -84,6 +84,12 @@
     return 0;
 }
 
+- (int)integerWidthInBitsForCPUFamily:(NSString *)family andSubFamily:(NSString *)subFamily {
+    if ([family isEqualToString:@"Sharp"] && [subFamily isEqualToString:@"LR35902"]) {
+        return 8;
+    }
+    return 0;}
+
 - (CPUEndianess)endianess {
     return CPUEndianess_Little;
 }
