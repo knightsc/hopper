@@ -275,7 +275,17 @@ char * label_for_address(Address address) {
                       ofSegment:(NSObject<HPSegment> *)segment
                 calledAddresses:(NSMutableArray<NSObject<HPCallDestination> *> *)calledAddresses
                       callsites:(NSMutableArray<NSNumber *> *)callSitesAddresses {
-    // Empty
+    if (disasm->instruction.branchType == DISASM_BRANCH_JMP) {
+        *next = BAD_ADDRESS;
+        [branches addObject:@(disasm->instruction.addressValue)];
+    } else if (disasm->instruction.branchType == DISASM_BRANCH_CALL) {
+        *next = disasm->instruction.pcRegisterValue;
+        [branches addObject:@(disasm->instruction.addressValue)];
+    } else if (disasm->instruction.branchType != DISASM_BRANCH_NONE) {
+        *next = disasm->instruction.pcRegisterValue;
+        [branches addObject:@(disasm->instruction.addressValue)];
+    }
+    
 }
 
 - (void)performInstructionSpecificAnalysis:(DisasmStruct *)disasm forProcedure:(NSObject<HPProcedure> *)procedure inSegment:(NSObject<HPSegment> *)segment {
