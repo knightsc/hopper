@@ -52,7 +52,7 @@
     return @"0.0.1";
 }
 
-- (NSString *)commandLineIdentifier {
+- (NSString *)commandLineIdentifiers {
     return @"gb";
 }
 
