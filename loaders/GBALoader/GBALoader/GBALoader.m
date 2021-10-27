@@ -85,7 +85,7 @@
     return @[];
 }
 
-- (FileLoaderLoadingStatus)loadData:(NSData *)data
+- (FileLoaderLoadingStatus)loadData:(const void *)data
                              length:(size_t)length
                        originalPath:(NSString *)fileFullPath
               usingDetectedFileType:(NSObject<HPDetectedFileType> *)fileType
@@ -116,7 +116,7 @@
     callback(@"Loading cartridge ROM", 0.6);
     NSObject<HPSegment> *segment = [file segmentNamed:@"ROM0"];
     NSObject<HPSection> *section = [file sectionNamed:@"ROM0"];
-    segment.mappedData = data;
+    segment.mappedData = [NSData dataWithBytes:data length:length];
     segment.fileOffset = 0;
     segment.fileLength = length;
     
