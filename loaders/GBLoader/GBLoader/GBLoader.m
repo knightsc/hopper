@@ -37,7 +37,7 @@
     return @"0.0.1";
 }
 
-- (NSString *)commandLineIdentifier {
+- (NSString *)commandLineIdentifiers {
     return @"GB";
 }
 
@@ -57,13 +57,15 @@
     return NO;
 }
 
-- (NSArray<NSObject<HPDetectedFileType> *> *)detectedTypesForData:(NSData *)data
-                                                      ofFileNamed:(NSString *)filename {
-    if ([data length] < GB_HEADER_LEN) {
+- (NSArray<NSObject<HPDetectedFileType> *> *)detectedTypesForData:(const void *)data
+                                                           length:(size_t) length
+                                                      ofFileNamed:(NSString *)filename
+                                                           atPath:(nullable NSString *) fileFullPath{
+    if (length < GB_HEADER_LEN) {
         return @[];
     }
     
-    const void *bytes = (const void *)[data bytes];
+    const void *bytes = (const void *)data;
     
     if (OSReadBigInt32(bytes, 0x100) == GB_MAGIC_NUM) {
         NSObject<HPDetectedFileType> *type = [self.services detectedType];
@@ -79,7 +81,9 @@
     return @[];
 }
 
-- (FileLoaderLoadingStatus)loadData:(NSData *)data
+- (FileLoaderLoadingStatus)loadData:(const void *)data
+                             length:(size_t)length
+                       originalPath:(NSString *)fileFullPath
               usingDetectedFileType:(NSObject<HPDetectedFileType> *)fileType
                             options:(FileLoaderOptions)options
                             forFile:(NSObject<HPDisassembledFile> *)file
@@ -103,7 +107,7 @@
     }
     
     callback(@"Loading cartridge ROM", 0.4);
-    unsigned long romCount = [data length] / GB_BANK_LEN;
+    unsigned long romCount = length / GB_BANK_LEN;
     for (int i = 0; i < romCount; i++) {
         NSString *name = [NSString stringWithFormat:@"ROM%03x", i];
         
@@ -127,7 +131,7 @@
             addr = 0x0000;
         }
         
-        const void *bytes = (const void *)[data bytes];
+        const void *bytes = (const void *)data;
         NSData *bankData = [NSData dataWithBytes:&bytes[i * GB_BANK_LEN] length:GB_BANK_LEN];
         
         NSObject<HPSegment> *segment = [file addSegmentAt:addr size:GB_BANK_LEN];
@@ -187,20 +191,34 @@
     return DIS_OK;
 }
 
-- (NSData *)extractFromData:(NSData *)data
+- (NSData *)extractFromData:(const void *)data
+                     length:(size_t)length
       usingDetectedFileType:(NSObject<HPDetectedFileType> *)fileType
+           originalFileName:(NSString *)filename
+               originalPath:(NSString *)fileFullPath
          returnAdjustOffset:(uint64_t *)adjustOffset
        returnAdjustFilename:(NSString *__autoreleasing *)newFilename {
     return nil;
 }
 
+- (void)setupFile:(nonnull NSObject<HPDisassembledFile> *)file
+afterExtractionOf:(nonnull NSString *)filename
+     originalPath:(nullable NSString *)fileFullPath
+             type:(nonnull NSObject<HPDetectedFileType> *)fileType {
+    return;
+}
+
 - (void)fixupRebasedFile:(NSObject<HPDisassembledFile> *)file
                withSlide:(int64_t)slide
-        originalFileData:(NSData *)fileData {
+        originalFileData:(const void *)fileData
+                  length:(size_t)length
+            originalPath:(NSString *)fileFullPath {
     // Not Supported
 }
 
-- (FileLoaderLoadingStatus)loadDebugData:(NSData *)data
+- (FileLoaderLoadingStatus)loadDebugData:(const void *)data
+                                  length:(size_t)length
+                            originalPath:(NSString *)fileFullPath
                                  forFile:(NSObject<HPDisassembledFile> *)file
                            usingCallback:(FileLoadingCallbackInfo)callback {
     return DIS_NotSupported;

@@ -37,7 +37,7 @@
     return @"0.0.1";
 }
 
-- (NSString *)commandLineIdentifier {
+- (NSString *)commandLineIdentifiers {
     return @"GBA";
 }
 
@@ -57,13 +57,15 @@
     return NO;
 }
 
-- (NSArray<NSObject<HPDetectedFileType> *> *)detectedTypesForData:(NSData *)data
-                                                      ofFileNamed:(NSString *)filename {
-    if ([data length] < 4) {
+- (NSArray<NSObject<HPDetectedFileType> *> *)detectedTypesForData:(const void *)data
+                                                           length:(size_t) length
+                                                      ofFileNamed:(NSString *)filename
+                                                           atPath:(nullable NSString *) fileFullPath{
+    if (length < 4) {
         return @[];
     }
 
-    const void *bytes = (const void *)[data bytes];
+    const void *bytes = (const void *)data;
     
     if (OSReadBigInt32(bytes, 0) == GBA_MAGIC_NUM) {
         NSObject<HPDetectedFileType> *type = [self.services detectedType];
@@ -83,7 +85,9 @@
     return @[];
 }
 
-- (FileLoaderLoadingStatus)loadData:(NSData *)data
+- (FileLoaderLoadingStatus)loadData:(const void *)data
+                             length:(size_t)length
+                       originalPath:(NSString *)fileFullPath
               usingDetectedFileType:(NSObject<HPDetectedFileType> *)fileType
                             options:(FileLoaderOptions)options
                             forFile:(NSObject<HPDisassembledFile> *)file
@@ -112,12 +116,12 @@
     callback(@"Loading cartridge ROM", 0.6);
     NSObject<HPSegment> *segment = [file segmentNamed:@"ROM0"];
     NSObject<HPSection> *section = [file sectionNamed:@"ROM0"];
-    segment.mappedData = data;
+    segment.mappedData = [NSData dataWithBytes:data length:length];
     segment.fileOffset = 0;
-    segment.fileLength = [data length];
+    segment.fileLength = length;
     
     section.fileOffset = 0;
-    section.fileLength = [data length];
+    section.fileLength = length;
     
     NSObject<HPTypeDesc> *type = [file structureType];
     type.name = @"gba_rom_header";
@@ -175,20 +179,34 @@
     return DIS_OK;
 }
 
-- (NSData *)extractFromData:(NSData *)data
+- (NSData *)extractFromData:(const void *)data
+                     length:(size_t)length
       usingDetectedFileType:(NSObject<HPDetectedFileType> *)fileType
+           originalFileName:(NSString *)filename
+               originalPath:(NSString *)fileFullPath
          returnAdjustOffset:(uint64_t *)adjustOffset
        returnAdjustFilename:(NSString *__autoreleasing *)newFilename {
     return nil;
 }
 
+- (void)setupFile:(nonnull NSObject<HPDisassembledFile> *)file
+afterExtractionOf:(nonnull NSString *)filename
+     originalPath:(nullable NSString *)fileFullPath
+             type:(nonnull NSObject<HPDetectedFileType> *)fileType {
+    return;
+}
+
 - (void)fixupRebasedFile:(NSObject<HPDisassembledFile> *)file
                withSlide:(int64_t)slide
-        originalFileData:(NSData *)fileData {
+        originalFileData:(const void *)fileData
+                  length:(size_t)length
+            originalPath:(NSString *)fileFullPath {
     // Not Supported
 }
 
-- (FileLoaderLoadingStatus)loadDebugData:(NSData *)data
+- (FileLoaderLoadingStatus)loadDebugData:(const void *)data
+                                  length:(size_t)length
+                            originalPath:(NSString *)fileFullPath
                                  forFile:(NSObject<HPDisassembledFile> *)file
                            usingCallback:(FileLoadingCallbackInfo)callback {
     return DIS_NotSupported;
