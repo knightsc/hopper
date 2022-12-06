@@ -10,14 +10,14 @@
 #import <Hopper/Hopper.h>
 
 typedef struct {
-    char    *name;
+    char    * _Null_unspecified name;
     Address  addr;
 } NamedAddress;
 
 typedef struct {
-    const char *const mnemonic;
-    const char *const op1;
-    const char *const op2;
+    const char *_Null_unspecified const mnemonic;
+    const char *_Null_unspecified const op1;
+    const char *_Null_unspecified const op2;
     uint8_t length;
     uint8_t cycles;
     DisasmBranchType branchType;

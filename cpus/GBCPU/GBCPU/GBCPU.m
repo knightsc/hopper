@@ -25,7 +25,7 @@
 }
 
 - (HopperUUID *)pluginUUID {
-    return [self.services UUIDWithString:@"55b3465c-87e8-46d2-ba7c-2c4bf7757224"];
+    return (HopperUUID *) [self.services UUIDWithString:@"55b3465c-87e8-46d2-ba7c-2c4bf7757224"];
 }
 
 - (HopperPluginType)pluginType {
